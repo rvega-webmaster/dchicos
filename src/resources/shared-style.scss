@@ -2,6 +2,33 @@
 
 html{
     body{
+        background: $white url(../resources/images/bg_page.png);
         margin: 0;
+        font-family: 'Roboto', sans-serif;
+
+        #root{
+            margin: 0 auto;
+            width: 1000px;
+            background-color: $white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+
+            .f-left{
+                float: left;
+            }
+
+            .f-right{
+                float: right;
+            }
+
+            .vertical-horizontal-center {
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+              }
+        }
     }
 }

@@ -4,7 +4,6 @@ import Nav from './nav';
 import AboutUs from '../about-us/about-us';
 import Catalog from '../catalog/catalog';
 import Footer from '../footer/footer';
-import Header from '../header/header';
 import Order from '../order/order';
 import Home from '../home/home';
 import { Container } from 'semantic-ui-react';
@@ -13,7 +12,6 @@ function Main (){
 
     return (
         <Container>
-            <Header />
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Nav />}>

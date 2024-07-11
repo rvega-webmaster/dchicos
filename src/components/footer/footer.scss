@@ -1,0 +1,14 @@
+@import '../../resources/variable-style.scss';
+
+footer{
+    background: url(../../resources/images/top_menu_bg.png);
+    border-radius: 7px 7px 0 0;
+    -moz-border-radius: 7px 7px 0 0;
+    -webkit-border: 7px 7px 0 0;
+    height: 50px;
+    position: relative;
+
+    span{
+        color: $darkGrey;
+    }
+}
