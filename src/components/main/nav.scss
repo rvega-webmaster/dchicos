@@ -28,6 +28,12 @@ header {
             color: $grey;
         }
     }
+
+    img.f-right{
+        transform: rotate(30deg);
+        -ms-transform: rotate(30deg);
+        -webkit-transform: rotate(30deg);
+    }
 }
 
 nav{
@@ -50,7 +56,7 @@ nav{
                 color: $white;
                 text-decoration: none;
                 font-weight: bold;
-                font-size: 16px;
+                font-size: 18px;
             }
         }
     }
