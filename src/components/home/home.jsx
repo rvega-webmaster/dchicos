@@ -41,6 +41,11 @@ function Home (){
     ];
     const responsiveOptionsBanner = [
         {
+            breakpoint: '3000px',
+            numVisible: 3,
+            numScroll: 1
+        },
+        {
             breakpoint: '1400px',
             numVisible: 3,
             numScroll: 1
