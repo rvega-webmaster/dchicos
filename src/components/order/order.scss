@@ -1,0 +1,73 @@
+@import '../../resources/variable-style.scss';
+
+.order{
+
+    .access-token-container{
+        width: 500px;
+        margin: 0 auto;
+
+        .token-field-container, .phone-field-container{
+            width: 200px;
+            margin: 0 auto;
+        }
+    }
+
+    .product-container{
+        text-align: left;
+        padding-top: 10px;
+        box-shadow: 0px 0px 5px 1px $grey;
+        background: $lightestGrey;
+        min-height: 300px;
+        position: relative;
+        width: 23%;
+        display: inline-block;
+        margin-right: 30px;
+        vertical-align: top;
+        margin-bottom: 50px;
+
+        img{
+            width: 215px;
+            height: 200px;
+            background: round;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+        p{
+            margin: 5px 0;
+        }
+
+        .horizontal-space{
+            padding: 0 10px;
+        }
+
+        .price-container{
+            text-align: center;
+            width: 100%;
+            background: $cadetblue;
+            height: 40px;
+            box-shadow: 0px 0px 5px 1px $grey;
+
+            .catalog-price{
+                font-size: 20px;
+                color: $white;
+                padding-top: 9px;
+            }
+        }
+    }
+
+    .customer{
+        background: $lightestGrey;
+        box-shadow: 0px 0px 5px 1px $grey;
+        position: absolute;
+        width: 945px;
+        top: -13px;
+
+        p{
+            margin: 0;
+            padding: 10px 0;
+            color: $darkGrey;
+        }
+    }
+}

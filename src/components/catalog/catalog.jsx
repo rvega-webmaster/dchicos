@@ -21,6 +21,10 @@ function Catalog (){
     const [apiLoader, setApiLoader] = useState(false);
 
     useEffect (() => {
+        onGetCategories();
+    }, []);
+
+    const onGetCategories = () => {
         const method = 'GET';
         let payload = {};
         
@@ -30,10 +34,14 @@ function Catalog (){
             }
 
             if (response.apiError) {
+                if (response.apiError.code === 'ECONNABORTED') {
+                    console.log('New request has been executed.');
+                    onGetCategories();
+                }
                 console.log('api error', response.apiError);
             }
         });
-    }, []);
+    } 
 
     const load = (e) => {
         e.preventDefault();

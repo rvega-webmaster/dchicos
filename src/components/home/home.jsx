@@ -19,6 +19,11 @@ function Home (){
     const [bannerList, setBannerList] = useState([]);
     const responsiveOptions = [
         {
+            breakpoint: '3000px',
+            numVisible: 1,
+            numScroll: 1
+        },
+        {
             breakpoint: '1400px',
             numVisible: 1,
             numScroll: 1
