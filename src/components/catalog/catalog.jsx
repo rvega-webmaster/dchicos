@@ -87,16 +87,18 @@ function Catalog (){
             if (response.apiData && response.apiData.data) {
                 setProducts(response.apiData.data);
                 setCategorySelected(category);
+                setApiLoader(response.apiLoader);
             }
 
             if (response.apiError) {
                 if (response.apiError.code === 'ECONNABORTED') {
                     console.log('New request has been executed.');
                     changeCategory(category);
+                } else {
+                    console.log('api error', response.apiError);
+                    setApiLoader(response.apiLoader);
                 }
-                console.log('api error', response.apiError);
             }
-            setApiLoader(response.apiLoader);
         });
     }
 
@@ -122,8 +124,8 @@ function Catalog (){
                                         return(
                                             <div className="product-container" key={index}>
                                                 <img className="horizontal-space" src={`https://www.dchicos.com/${product.image}`} />
-                                                <p className="horizontal-space">Codigo: {product.productID}</p>
-                                                <p className="horizontal-space">{product.productName}</p>
+                                                <p className="horizontal-space t-align-center"><b>{product.productID}</b></p>
+                                                <p className="horizontal-space t-align-center">{product.productName}</p>
                                                 <div className="price-container mt-20">
                                                     <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(product.price))}</p>
                                                 </div>

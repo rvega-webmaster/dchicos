@@ -71,3 +71,28 @@
         }
     }
 }
+
+.add-product{
+    .p-dialog-header{
+        display: none;
+    }
+
+    .mr-20{
+        margin-right: 20px;
+    }
+
+    .p-dialog-content{
+        padding: 20px;
+    }
+
+    .product-container{
+        img{
+            width: 100%;
+            height: 100%;
+            background: round;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+        }
+    }
+}

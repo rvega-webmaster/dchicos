@@ -13,7 +13,7 @@ export async function RequestBuilderService(path, payload, method){
         url: requestUrl,
         method: method,
         data: payload,
-        timeout: 20000
+        timeout: 15000
     })
         .then((response) => {
             apiData = response;
@@ -21,7 +21,7 @@ export async function RequestBuilderService(path, payload, method){
         })
         .catch(error => {
             if (error.code === 'ECONNABORTED') {
-                console.log('Timeout error: the request took more than 20 seconds.')
+                console.log('Timeout error: the request took more than 15 seconds.')
             }
             apiError = error;
             apiLoader = false;

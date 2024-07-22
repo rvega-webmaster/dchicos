@@ -5,6 +5,7 @@ import { FloatLabel } from "primereact/floatlabel";
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Dropdown } from 'primereact/dropdown';
+import { Dialog } from 'primereact/dialog';
 import { RequestBuilderService } from '../../services/request-builder-services';
 import BouncingDotsLoader from "../bouncing-dots-loader/bouncing-dots-loader";
 import 'primereact/resources/themes/lara-light-blue/theme.css';
@@ -16,12 +17,14 @@ function Order (){
     const [userLogin, setUserLogin] = useState(false);
     const [invalidToken, setInvalidToken] = useState(false);
     const [products, setProducts] = useState([]);
+    const [productSelected, setProductSelected] = useState(null);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [categorySelected, setCategorySelected] = useState(null);
     const [apiLoader, setApiLoader] = useState(false);
     const [customer, setCustomer] = useState(null);
     const [isAgent, setIsAgent] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [visibleAddProduct, setVisibleAddProduct] = useState(false);
 
     useEffect (() => {
         onGetCategories();
@@ -66,17 +69,18 @@ function Order (){
                     default:
                         if (response.apiData.data.length > 0) setCustomer(response.apiData.data[0]);
                   }
+                setLoading(false);
             }
 
             if (response.apiError) {
                 if (response.apiError.code === 'ECONNABORTED') {
                     console.log('New request has been executed.');
                     validateAccessToken();
+                } else {
+                    console.log('api error', response.apiError);
+                    setLoading(false);
                 }
-                console.log('api error', response.apiError);
             }
-            console.log(response.apiData.data[0]);
-            setLoading(false);
         });
     };
 
@@ -103,27 +107,36 @@ function Order (){
     const changeCategory = (category) => {
         setApiLoader(true);
         const method = 'POST';
-        let payload = token;
+        let payload = category.description;
 
         RequestBuilderService('/ws-get-products-filtered/', payload, method).then((response) => {
             if (response.apiData && response.apiData.data) {
                 setProducts(response.apiData.data);
                 setCategorySelected(category);
+                setApiLoader(response.apiLoader);
             }
 
             if (response.apiError) {
                 if (response.apiError.code === 'ECONNABORTED') {
                     console.log('New request has been executed.');
                     changeCategory(category);
+                } else {
+                    console.log('api error', response.apiError);
+                    setApiLoader(response.apiLoader);
                 }
-                console.log('api error', response.apiError);
             }
-            setApiLoader(response.apiLoader);
+            
         });
     }
 
     const numberWithCommas = (x) => {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    const handleOpenAddProduct = (product) => {
+        console.log(product);
+        setProductSelected(product);
+        setVisibleAddProduct(true);
     }
 
     return (
@@ -141,20 +154,33 @@ function Order (){
                         { apiLoader ? <div className="mb-50"><BouncingDotsLoader /> </div> 
                         : 
                             <>
-                                { products.length > 0 ?
-                                    products.map((product, index) => {
-                                        return(
-                                            <div className="product-container" key={index}>
-                                                <img className="horizontal-space" src={`https://www.dchicos.com/${product.image}`} />
-                                                <p className="horizontal-space">Codigo: {product.productID}</p>
-                                                <p className="horizontal-space">{product.productName}</p>
-                                                <div className="price-container mt-20">
-                                                    <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(product.price))}</p>
-                                                </div>
+                                { products.map((product, index) => {
+                                    return(
+                                        <div className="product-container" key={index} onClick={() => handleOpenAddProduct(product)}>
+                                            <img className="horizontal-space" src={`https://www.dchicos.com/${product.image}`} />
+                                            <p className="horizontal-space t-align-center"><b>{product.productID}</b></p>
+                                            <p className="horizontal-space t-align-center">{product.productName}</p>
+                                            <div className="price-container mt-20">
+                                                <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(product.price))}</p>
                                             </div>
-                                        );
-                                    })
-                                : null }
+                                        </div>
+                                    );
+                                })}
+
+                                <Dialog visible={visibleAddProduct} modal className="add-product" style={{ width: '22rem' }} onHide={() => {if (!visibleAddProduct) return; setVisibleAddProduct(false); }}>
+                                    <div className="product-container">
+                                        { productSelected ? <img className="horizontal-space" src={`https://www.dchicos.com/${productSelected.image}`} /> : null }
+                                        { productSelected ? <p className="horizontal-space t-align-center"><b>{productSelected.productID}</b></p> : null }
+                                        { productSelected ? <p className="horizontal-space t-align-center">{productSelected.productName}</p> : null }
+                                        { productSelected ?  
+                                            <div className="price-container mt-20">
+                                                <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(productSelected.price))}</p>
+                                            </div>
+                                        : null }
+                                    </div>
+                                    <Button label="Cancelar" className="mr-20" icon="pi pi-check" onClick={() => setVisibleAddProduct(false)} />
+                                    <Button label="Agregar" icon="pi pi-check" onClick={() => setVisibleAddProduct(false)} autoFocus />
+                                </Dialog>
                             </>
                         }
                     
