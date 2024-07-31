@@ -139,7 +139,7 @@ function Catalog (){
                     </Segment>
                 :
                     <Segment className="access-token-container t-align-center">
-                        <h2 className="color-grey t-align-center mt-100">Acceso al Catalogo de Productos</h2>
+                        <h2 className="color-grey t-align-center mt-100">Acceso a las Categorias</h2>
                         <form onSubmit={load} className="mb-100">
                             <div className="token-field-container mt-30 mb-10">
                                 <FloatLabel>

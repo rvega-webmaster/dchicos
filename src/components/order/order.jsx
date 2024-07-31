@@ -24,7 +24,15 @@ function Order (){
     const [customer, setCustomer] = useState(null);
     const [isAgent, setIsAgent] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [visibleAddProduct, setVisibleAddProduct] = useState(false);
+    const [addProductVisible, setAddProductVisible] = useState(false);
+    const [addProductAmount, setAddProductAmount] = useState('');
+    const [addProductMessage, setAddProductMessage] = useState('');
+    const [orderList, setOrderList] = useState([]);
+    const [cart, setCart] = useState(null);
+    const [subTotal, setSubTotal] = useState(null);
+    const [discount, setDiscount] = useState(null);
+    const [iva, setIva] = useState(null);
+    const [total, setTotal] = useState(null);
 
     useEffect (() => {
         onGetCategories();
@@ -110,11 +118,25 @@ function Order (){
         let payload = category.description;
 
         RequestBuilderService('/ws-get-products-filtered/', payload, method).then((response) => {
+            
             if (response.apiData && response.apiData.data) {
-                setProducts(response.apiData.data);
+
+                if (cart && cart.orderList.length > 0){
+                    cart.orderList.forEach((product) => {
+                        response.apiData.data.forEach((responseProduct, index) => {
+                            if (product.id === responseProduct.productID){
+                                response.apiData.data[index]['added'] = true;
+                            } 
+                        });
+                    });
+                    setProducts(response.apiData.data);
+                } else {
+                    setProducts(response.apiData.data);
+                }
+    
                 setCategorySelected(category);
                 setApiLoader(response.apiLoader);
-            }
+            } 
 
             if (response.apiError) {
                 if (response.apiError.code === 'ECONNABORTED') {
@@ -133,10 +155,111 @@ function Order (){
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
-    const handleOpenAddProduct = (product) => {
-        console.log(product);
-        setProductSelected(product);
-        setVisibleAddProduct(true);
+    const handleOpenAddProduct = (product, index) => {
+        if (product.added !== true){
+            let tempProductSelected = product;
+            tempProductSelected['index'] = index;
+            setProductSelected(tempProductSelected);
+            setAddProductVisible(true);
+        }
+    }
+
+    const cancelAddProduct = () => {
+        setAddProductVisible(false);
+        setAddProductAmount('');
+        setAddProductMessage('');
+    }
+
+    const insertProductLastOrder = () => {
+        try{
+            const method = 'POST';
+            let payload = {};
+            payload['product'] = productSelected;
+            payload['customer'] = customer;
+            payload['amount'] = addProductAmount;
+            payload['message'] = addProductMessage;
+
+            RequestBuilderService('/ws-last-order-insert/', payload, method).then((response) => { 
+                if (response.apiError) {
+                    if (response.apiError.code === 'ECONNABORTED') {
+                        console.log('New request has been executed.');
+                        insertProductLastOrder();
+                    } else {
+                        console.log('api error', response.apiError);
+                    }
+                }           
+            });
+        } catch (e) {
+            console.log('Error Updating Last Product Insert', e);
+        }
+    }
+
+    const addProduct = (e) => {
+        try{
+            if (e) e.preventDefault();
+
+            let tempOrderList = orderList;
+            tempOrderList.push({id: productSelected.productID, name: productSelected.productName, amount: addProductAmount, message: addProductMessage, price: productSelected.price, index: productSelected.index});
+            setOrderList(tempOrderList);
+            setAddProductVisible(false);
+            setAddProductAmount('');
+            setAddProductMessage('');
+            updateCart(tempOrderList);
+
+            products.forEach((product) => {
+                if (product.productID === productSelected.productID) product.added = true;
+            });
+
+            insertProductLastOrder();
+
+        } catch (e) {
+            console.log('Error Updating Cart', e);
+        }
+    }
+
+    const updateCart = (incomingOrderList) => {
+        try{
+            let tempSubTotal = 0;
+            let tempDiscount = 0;
+            let tempIva = 0;
+            let tempTotal = 0;
+            let tempOrderList = [];
+            let tempCart = {};
+
+            incomingOrderList.forEach((order) => {
+                let singleProductSubTotal = order.price * order.amount;
+
+                tempOrderList.push(
+                    {
+                    index: order.index,
+                    id: order.id, 
+                    name: order.name, 
+                    amount: order.amount, 
+                    message: order.message, 
+                    price: order.price,
+                    singleProductSubTotal: singleProductSubTotal
+                    }
+                );
+
+                tempSubTotal += singleProductSubTotal;
+            });
+            setSubTotal(tempSubTotal);
+
+            tempIva = tempSubTotal * 0.14;
+            setIva(tempIva);
+
+            tempTotal = tempSubTotal + tempIva;
+            setTotal(tempTotal);
+
+            tempCart['orderList'] = tempOrderList;
+            tempCart['subTotal'] = tempSubTotal;
+            tempCart['iva'] = tempIva;
+            tempCart['total'] = tempTotal;
+            setCart(tempCart);
+
+        } catch (e) {
+            console.log('Error Updating Cart', e);
+        }
     }
 
     return (
@@ -156,30 +279,45 @@ function Order (){
                             <>
                                 { products.map((product, index) => {
                                     return(
-                                        <div className="product-container" key={index} onClick={() => handleOpenAddProduct(product)}>
-                                            <img className="horizontal-space" src={`https://www.dchicos.com/${product.image}`} />
-                                            <p className="horizontal-space t-align-center"><b>{product.productID}</b></p>
-                                            <p className="horizontal-space t-align-center">{product.productName}</p>
-                                            <div className="price-container mt-20">
-                                                <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(product.price))}</p>
+                                        <Segment className="single-product p-relative" key={index}>
+                                            <div className={`product-container ${product.added ? 'added' : 'no-added'}`} onClick={() => handleOpenAddProduct(product,index)}>
+                                                <img className="horizontal-space" src={`https://www.dchicos.com/${product.image}`} />
+                                                <p className="horizontal-space t-align-center"><b>{product.productID}</b></p>
+                                                <p className="horizontal-space t-align-center">{product.productName}</p>
+                                                <div className="price-container mt-20">
+                                                    <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(product.price))}</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                            { product.added ?
+                                                <div className="product-added-container">
+                                                    <p>Agregado</p>
+                                                </div>
+                                            : null }
+                                        </Segment>
                                     );
                                 })}
 
-                                <Dialog visible={visibleAddProduct} modal className="add-product" style={{ width: '22rem' }} onHide={() => {if (!visibleAddProduct) return; setVisibleAddProduct(false); }}>
-                                    <div className="product-container">
+                                <Dialog visible={addProductVisible} modal className="add-product" style={{ width: '22rem' }} onHide={() => {if (!addProductVisible) return; setAddProductVisible(false); }}>
+                                    <Segment className="product-container t-align-center">
                                         { productSelected ? <img className="horizontal-space" src={`https://www.dchicos.com/${productSelected.image}`} /> : null }
-                                        { productSelected ? <p className="horizontal-space t-align-center"><b>{productSelected.productID}</b></p> : null }
-                                        { productSelected ? <p className="horizontal-space t-align-center">{productSelected.productName}</p> : null }
+                                        { productSelected ? <p className="horizontal-space"><b>{productSelected.productID}</b></p> : null }
+                                        { productSelected ? <p className="horizontal-space">{productSelected.productName}</p> : null }
                                         { productSelected ?  
                                             <div className="price-container mt-20">
                                                 <p className="catalog-price">&#x20a1;{numberWithCommas(parseInt(productSelected.price))}</p>
                                             </div>
                                         : null }
-                                    </div>
-                                    <Button label="Cancelar" className="mr-20" icon="pi pi-check" onClick={() => setVisibleAddProduct(false)} />
-                                    <Button label="Agregar" icon="pi pi-check" onClick={() => setVisibleAddProduct(false)} autoFocus />
+                                    </Segment>
+                                    <form onSubmit={addProduct}>
+                                        <Segment className="t-align-center">
+                                            <InputText className="mb-10" keyfilter="int" placeholder="Cantidad" value={addProductAmount} onChange={(e) => setAddProductAmount(e.target.value)} required/>
+                                            <InputText className="mb-10" placeholder="Comentario" value={addProductMessage} onChange={(e) => setAddProductMessage(e.target.value)} />
+                                        </Segment>
+                                        <Segment className="t-align-center">
+                                            <Button label="Cancelar" className="mr-20" icon="pi pi-check" onClick={() => cancelAddProduct()} />
+                                            <Button label="Agregar" icon="pi pi-check" type="submit" autoFocus />
+                                        </Segment>
+                                    </form>
                                 </Dialog>
                             </>
                         }
