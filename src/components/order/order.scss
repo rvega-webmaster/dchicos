@@ -2,6 +2,12 @@
 
 .order{
 
+    .cart-container{
+        position: absolute;
+        top: 80px;
+        right: 10px;
+    }
+
     .access-token-container{
         width: 500px;
         margin: 0 auto;
@@ -91,11 +97,15 @@
         position: absolute;
         width: 945px;
         top: -13px;
+        padding: 10px 0;
 
         p{
             margin: 0;
-            padding: 10px 0;
             color: $darkGrey;
+
+            &.address{
+                margin-top: 5px;
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ function Order (){
     const [discount, setDiscount] = useState(null);
     const [iva, setIva] = useState(null);
     const [total, setTotal] = useState(null);
+    const [cartVisible, setCartVisible] = useState(false);
 
     useEffect (() => {
         onGetCategories();
@@ -267,13 +268,29 @@ function Order (){
             {
                 customer ? 
                     <Segment className="t-align-center">
-                        <Segment className="customer">
-                            <p><span><b>Cliente:</b> {customer.merchantID} - {customer.merchantName}</span></p>
+                        <Segment className="cart-container">
+                            <Button label="Pedido" icon="pi pi-shopping-cart" className="cart-icon" onClick={() => setCartVisible(true)}/>
+                            <Dialog visible={cartVisible} style={{ width: '50vw' }} onHide={() => {if (!cartVisible) return; setCartVisible(false); }}>
+                                <Segment className="customer">
+                                    <p><span><b>{customer.merchantID} - {customer.merchantName}</b></span></p>
+                                    <p className="address">{customer.address}</p>
+                                </Segment>
+                                <p className="m-0">
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                                </p>
+                            </Dialog>
                         </Segment>
-                        <div>
+                        <Segment className="customer">
+                            <p><span><b>{customer.merchantID} - {customer.merchantName}</b></span></p>
+                            <p className="address">{customer.address}</p>
+                        </Segment>
+                        <Segment>
                             <Dropdown value={categorySelected} onChange={(e) => changeCategory(e.value)} options={categoryOptions} optionLabel="description" placeholder="Categorias" loading={apiLoader}
-                                filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className={`w-full md:w-14rem mt-50 ${apiLoader ? 'mb-50': products.length > 0 ? 'mb-50' : 'mb-200'}`} />
-                            </div>
+                                filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className={`w-full md:w-14rem mt-80 ${apiLoader ? 'mb-50': products.length > 0 ? 'mb-50' : 'mb-200'}`} />
+                        </Segment>
                         { apiLoader ? <div className="mb-50"><BouncingDotsLoader /> </div> 
                         : 
                             <>
