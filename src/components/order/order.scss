@@ -147,3 +147,85 @@
         }
     }
 }
+
+.p-dialog{
+    .p-dialog-header{
+        box-shadow: 0px 0px 5px 1px $grey;
+        background: $lightestGrey;
+
+        .customer{
+            p{
+                font-weight: 100;
+                margin: 5px 0 0 0;
+            }
+        }
+    }
+
+    .total-container{
+        float: right;
+
+        div{
+            border-bottom: 1px solid $lightGrey;
+            padding: 15px 0;
+            width: 220px;
+
+            label{
+                margin-right: 20px;
+                font-weight: bold;
+
+                &.discount{
+                    margin: 0;
+                }
+            }
+
+            .cart-subtotal{
+                margin-left: 34px;
+                font-weight: bold;
+            }
+
+            .cart-discount{
+                margin-left: 12px;
+                font-weight: bold;
+            }
+
+            .cart-iva{
+                margin-left: 78px;
+                font-weight: bold;
+            }
+
+            .cart-total{
+                margin-left: 66px;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .send-order-container{
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .order-recovery-container{
+        margin-top: 70px;
+    }
+
+    .no-records-order-recovery-container{
+        margin-top: 70px;
+        text-align: center;
+    }
+
+    .send-email-to-customer-container{
+        margin-top: 20px;
+
+        label{
+            margin-left: 10px;
+        }
+    }
+
+    .cart-note-container{
+        label{
+            display: block;
+            margin: 20px 0 0 10px;
+        }
+    }
+}

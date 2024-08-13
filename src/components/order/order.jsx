@@ -6,6 +6,10 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Checkbox } from "primereact/checkbox";
+import { InputTextarea } from "primereact/inputtextarea";
 import { RequestBuilderService } from '../../services/request-builder-services';
 import BouncingDotsLoader from "../bouncing-dots-loader/bouncing-dots-loader";
 import 'primereact/resources/themes/lara-light-blue/theme.css';
@@ -14,6 +18,8 @@ import './order.scss';
 function Order (){
     const [token, setToken] = useState('');
     const [loading, setLoading] = useState(false);
+    const [lastOrderGetAllLoading, setLastOrderGetAllLoading] = useState(false);
+    const [insertOrderLoading, setInsertOrderLoading] = useState(false);
     const [userLogin, setUserLogin] = useState(false);
     const [invalidToken, setInvalidToken] = useState(false);
     const [products, setProducts] = useState([]);
@@ -34,6 +40,9 @@ function Order (){
     const [iva, setIva] = useState(null);
     const [total, setTotal] = useState(null);
     const [cartVisible, setCartVisible] = useState(false);
+    const [sendEmailToCustomer, setSendEmailToCustomer] = useState(false);
+    const [cartNote, setCartNote] = useState('');
+    let nextOrderDetailId = null;
 
     useEffect (() => {
         onGetCategories();
@@ -199,7 +208,8 @@ function Order (){
         try{
             if (e) e.preventDefault();
 
-            let tempOrderList = orderList;
+            let tempOrderList = [];
+            if (cart && cart.orderList.length > 0) tempOrderList = cart.orderList;
             tempOrderList.push({id: productSelected.productID, name: productSelected.productName, amount: addProductAmount, message: addProductMessage, price: productSelected.price, index: productSelected.index});
             setOrderList(tempOrderList);
             setAddProductVisible(false);
@@ -226,9 +236,13 @@ function Order (){
             let tempTotal = 0;
             let tempOrderList = [];
             let tempCart = {};
+            let percentageDiscount = 0;
+            let totalDiscount = 0;
 
             incomingOrderList.forEach((order) => {
-                let singleProductSubTotal = order.price * order.amount;
+                let priceFormat = parseInt(order.price.replace(/,/g, ""));
+                let amountFormat = parseInt(order.amount.replace(/,/g, ""));
+                let singleProductSubTotal = priceFormat * amountFormat;
 
                 tempOrderList.push(
                     {
@@ -237,29 +251,209 @@ function Order (){
                     name: order.name, 
                     amount: order.amount, 
                     message: order.message, 
-                    price: order.price,
-                    singleProductSubTotal: singleProductSubTotal
+                    price: numberWithCommas(parseInt(order.price)),
+                    singleProductSubTotal: numberWithCommas(parseInt(singleProductSubTotal))
                     }
                 );
 
                 tempSubTotal += singleProductSubTotal;
             });
-            setSubTotal(tempSubTotal);
 
-            tempIva = tempSubTotal * 0.14;
-            setIva(tempIva);
+            if (parseInt(customer.discount) > 0) {
+                percentageDiscount = parseInt(customer.discount) / 100;
+                tempDiscount = tempSubTotal * percentageDiscount;
+                setDiscount(Math.ceil(tempDiscount));
 
-            tempTotal = tempSubTotal + tempIva;
-            setTotal(tempTotal);
+                setSubTotal(Math.ceil(tempSubTotal));
+
+                tempIva = Math.ceil((tempSubTotal - tempDiscount) * 0.13);
+                setIva(Math.ceil(tempIva));
+
+                tempTotal = (tempSubTotal - tempDiscount) + tempIva;
+                setTotal(Math.ceil(tempTotal));
+
+            } else {
+                setSubTotal(Math.ceil(tempSubTotal));
+
+                tempIva = Math.ceil(tempSubTotal * 0.13);
+                setIva(tempIva);
+
+                tempTotal = tempSubTotal + tempIva;
+                setTotal(Math.ceil(tempTotal));
+            }
 
             tempCart['orderList'] = tempOrderList;
-            tempCart['subTotal'] = tempSubTotal;
-            tempCart['iva'] = tempIva;
-            tempCart['total'] = tempTotal;
+            tempCart['subTotal'] = numberWithCommas(parseInt(tempSubTotal));
+            tempCart['discount'] = numberWithCommas(parseInt(tempDiscount));
+            tempCart['iva'] = numberWithCommas(parseInt(tempIva));
+            tempCart['total'] = numberWithCommas(parseInt(tempTotal));
             setCart(tempCart);
 
         } catch (e) {
             console.log('Error Updating Cart', e);
+        }
+    }
+
+    const cartHeader = () => {
+        return(
+            <Segment className="customer">
+                <p><span><b>{customer.merchantID} - {customer.merchantName}</b></span></p>
+                <p className="address">{customer.address}</p>
+            </Segment>
+        );
+    }
+
+    const getAllFromLastOrder = () => {
+        try{
+            setLastOrderGetAllLoading(true);
+            const method = 'POST';
+            let payload = {};
+            payload['customer'] = customer.merchantID;
+
+            RequestBuilderService('/ws-last-order-get-all/', payload, method).then((response) => { 
+                if (response.apiData) {
+                    if (response.apiData.data.length > 0) {
+                        let tempOrderList = [];
+                        response.apiData.data.forEach((product) => {
+                            tempOrderList.push({
+                                'amount': product.amount,
+                                'id': product.product_id,
+                                'message': product.comment,
+                                'name': product.description,
+                                'price': product.price,
+                                'singleProductSubtotal': product.subtotal
+                            });
+                        });
+                        updateCart(tempOrderList);
+                    }
+                    setLastOrderGetAllLoading(false);
+                }
+
+                if (response.apiError) {
+                    if (response.apiError.code === 'ECONNABORTED') {
+                        console.log('New request has been executed.');
+                        getAllFromLastOrder();
+                    } else {
+                        console.log('api error', response.apiError);
+                        setLastOrderGetAllLoading(false);
+                    }
+                }           
+            });
+        } catch (e) {
+            console.log('Error Updating Last Product Insert', e);
+        }
+    }
+
+    const insertOrder = () => {
+        try{
+            setInsertOrderLoading(true);
+            getOrderDetailId();
+        } catch (e) {
+            console.log('Error Insert Order', e);
+        }
+    }
+
+    const getOrderDetailId = () => {
+        try{
+            const method = 'GET';
+            let payload = {};
+
+            RequestBuilderService('/ws-get-latest-order-details-id/', payload, method).then((response) => { 
+                if (response.apiData && response.apiData.data && response.apiData.data.length > 0) {
+                    nextOrderDetailId = parseInt(response.apiData.data[0].ID) + 1;
+                    insertOrderDetails();
+                }
+
+                if (response.apiError) {
+                    if (response.apiError.code === 'ECONNABORTED') {
+                        console.log('New request has been executed.');
+                        getOrderDetailId();
+                    } else {
+                        console.log('api error', response.apiError);
+                        setInsertOrderLoading(false);
+                    }
+                }           
+            });
+        } catch (e) {
+            console.log('Error Insert Order Details', e);
+        }
+    }
+
+    const insertOrderDetails = () => {
+        try{
+            const method = 'PUT';
+            let payload = {};
+            let orderListFormat = [];
+            payload['nextOrderDetailId'] = nextOrderDetailId;
+
+            cart.orderList.forEach((order) => {
+                orderListFormat.push({
+                    amount: parseInt(order.amount.replace(/,/g, "")),
+                    price: parseInt(order.price.replace(/,/g, "")),
+                    singleProductSubTotal: parseInt(order.singleProductSubTotal.replace(/,/g, "")),
+                    id: order.id,
+                    message: order.message,
+                    name: order.name
+                });
+            });
+
+            payload['orderDetails'] = orderListFormat;
+
+            RequestBuilderService('/ws-insert-order-details/', payload, method).then((response) => { 
+                if (response.apiData) {
+                    insertOrderHead();
+                }
+
+                if (response.apiError) {
+                    if (response.apiError.code === 'ECONNABORTED') {
+                        console.log('New request has been executed.');
+                        insertOrderDetails();
+                    } else {
+                        console.log('api error', response.apiError);
+                        setInsertOrderLoading(false);
+                    }
+                }           
+            });
+        } catch (e) {
+            console.log('Error Insert Order Details', e);
+        }
+    }
+
+    const insertOrderHead = () => {
+        try{
+            const method = 'POST';
+            let payload = {};
+            payload['merchantID'] = customer.merchantID;
+            payload['orderDetailtID'] = nextOrderDetailId;
+            payload['discount'] = discount;
+            payload['iva'] = iva;
+            payload['total'] = total;
+            payload['note'] = cartNote;
+            payload['phone'] = phoneNumber;
+            payload['submitted_by_id'] = "201rv";
+            payload['submitted_by_name'] = "Ronny";
+            payload['submitted_by_device'] = "MacBookPro";
+
+            RequestBuilderService('/ws-insert-order-head/', payload, method).then((response) => { 
+                if (response.apiData) {
+                    if (response.apiData.data.length > 0) {
+                        
+                    }
+                    setInsertOrderLoading(false);
+                }
+
+                if (response.apiError) {
+                    if (response.apiError.code === 'ECONNABORTED') {
+                        console.log('New request has been executed.');
+                        insertOrderHead();
+                    } else {
+                        console.log('api error', response.apiError);
+                        setInsertOrderLoading(false);
+                    }
+                }           
+            });
+        } catch (e) {
+            console.log('Error Insert Order Head', e);
         }
     }
 
@@ -270,17 +464,65 @@ function Order (){
                     <Segment className="t-align-center">
                         <Segment className="cart-container">
                             <Button label="Pedido" icon="pi pi-shopping-cart" className="cart-icon" onClick={() => setCartVisible(true)}/>
-                            <Dialog visible={cartVisible} style={{ width: '50vw' }} onHide={() => {if (!cartVisible) return; setCartVisible(false); }}>
-                                <Segment className="customer">
-                                    <p><span><b>{customer.merchantID} - {customer.merchantName}</b></span></p>
-                                    <p className="address">{customer.address}</p>
-                                </Segment>
-                                <p className="m-0">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                </p>
+                            <Dialog visible={cartVisible} header={cartHeader} style={{ width: '1000px' }} onHide={() => {if (!cartVisible) return; setCartVisible(false); }}>
+                                
+                                { cart && cart.orderList ?
+                                    <>
+                                        <DataTable value={cart.orderList}>
+                                            <Column field="id" header="Codigo"></Column>
+                                            <Column field="name" header="Descripcion"></Column>
+                                            <Column field="message" header="Comentario"></Column>
+                                            <Column field="amount" header="Cantidad"></Column>
+                                            <Column field="price" header="Precio"></Column>
+                                            <Column field="singleProductSubTotal" header="SubTotal"></Column>
+                                        </DataTable>
+
+                                        <Segment className="total-container">
+                                            <div>
+                                                <label>SubTotal</label>
+                                                <span className="cart-subtotal">{cart.subTotal}</span>
+                                            </div> 
+                                            <div>
+                                                <label className="discount">Descuento {customer.discount}%</label>
+                                                <span className="cart-discount">{cart.discount}</span>
+                                            </div>
+                                            <div>
+                                                <label>IVA</label>
+                                                <span className="cart-iva">{cart.iva}</span>
+                                            </div>
+                                            <div>
+                                                <label>Total</label>
+                                                <span className="cart-total">{cart.total}</span>
+                                            </div>
+                                        </Segment>
+
+                                        <Segment className="order-recovery-container">
+                                            <Button label="Retomar Pedido" icon="pi pi-sync" onClick={getAllFromLastOrder} loading={lastOrderGetAllLoading} disabled={insertOrderLoading}/>
+                                        </Segment>
+                                        
+                                        <Segment className="send-email-to-customer-container">
+                                            <Checkbox inputId="sendEmailToCustomer" name="sendEmailToCustomer" onChange={e => setSendEmailToCustomer(e.checked)} checked={sendEmailToCustomer} />
+                                            <label htmlFor="sendEmailToCustomer" className="ml-2">Enviar correo al cliente</label>
+                                        </Segment>
+
+                                        <Segment className="cart-note-container">
+                                            <label htmlFor="cart-note">Nota</label>
+                                            <InputTextarea id="cart-note" value={cartNote} onChange={(e) => setCartNote(e.target.value)} rows={3} cols={50} />
+                                        </Segment>
+
+                                        <Segment className="send-order-container">
+                                            <Button label="Enviar Pedido" icon="pi pi-shopping-cart" onClick={insertOrder} loading={insertOrderLoading} disabled={lastOrderGetAllLoading}/>
+                                        </Segment>
+                                    </>
+                                :
+                                    <>
+                                        <p>Aun no ha agregado productos.</p>
+                                        <Segment className="no-records-order-recovery-container">
+                                            <Button label="Retomar Pedido" icon="pi pi-sync" onClick={getAllFromLastOrder} loading={lastOrderGetAllLoading}/>
+                                        </Segment>
+                                    </>
+                                }
+
                             </Dialog>
                         </Segment>
                         <Segment className="customer">
