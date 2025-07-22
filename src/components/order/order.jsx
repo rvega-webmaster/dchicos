@@ -17,18 +17,22 @@ import './order.scss';
 
 function Order (){
     const [token, setToken] = useState('');
+    const [agentCode, setAgentCode] = useState('');
     const [loading, setLoading] = useState(false);
     const [lastOrderGetAllLoading, setLastOrderGetAllLoading] = useState(false);
     const [insertOrderLoading, setInsertOrderLoading] = useState(false);
     const [userLogin, setUserLogin] = useState(false);
     const [invalidToken, setInvalidToken] = useState(false);
+    const [invalidAgentCode, setInvalidAgentCode] = useState(false);
     const [products, setProducts] = useState([]);
     const [productSelected, setProductSelected] = useState(null);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [categorySelected, setCategorySelected] = useState(null);
     const [apiLoader, setApiLoader] = useState(false);
     const [customer, setCustomer] = useState(null);
+    const [agent, setAgent] = useState(null);
     const [isAgent, setIsAgent] = useState(false);
+    const [agentCheck, setAgentCheck] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [addProductVisible, setAddProductVisible] = useState(false);
     const [addProductAmount, setAddProductAmount] = useState('');
@@ -71,21 +75,23 @@ function Order (){
         if (e) e.preventDefault();
         setLoading(true);
         setInvalidToken(false);
+        setInvalidAgentCode(false);
 
         const method = 'POST';
-        let payload = token ;
+        let payload = {"token":token, "agentCode": agentCode} ;
         
         RequestBuilderService('/ws-access-token/', payload, method).then((response) => {
             if (response.apiData && response.apiData.data) {
                 switch(response.apiData.data) {
-                    case 'agent':
-                        setIsAgent(true);
-                        break;
-                    case 'not-authorized':
+                    case 'client-not-authorized':
                         setInvalidToken(true);
                         break;
+                    case 'agent-not-authorized':
+                        setInvalidAgentCode(true);
+                        break;
                     default:
-                        if (response.apiData.data.length > 0) setCustomer(response.apiData.data[0]);
+                        if (response?.apiData?.data?.client?.length > 0) setCustomer(response.apiData.data.client[0]);
+                        if (response?.apiData?.data?.agent?.length > 0) setAgent(response.apiData.data.agent[0]);
                   }
                 setLoading(false);
             }
@@ -598,10 +604,16 @@ function Order (){
                                     <label htmlFor="phone">Telefono</label>
                                 </FloatLabel>
                             </div>
+                            <div className="agent-field-container mt-20 mb-20">
+                                <Checkbox inputId="agent-check" onChange={e => setAgentCheck(e.checked)} checked={agentCheck}></Checkbox>
+                                <label htmlFor="agent-check" className="ml-10">Agente</label>
+                                { agentCheck ? <InputText id="agent-check" className="mt-10" value={agentCode} onChange={(e) => setAgentCode(e.target.value)} required invalid={invalidAgentCode}/> : null }
+                            </div>
                             <div className="card flex flex-wrap justify-content-center gap-3">
                                 <Button label="Validar Codigo" icon="pi pi-check" loading={loading} type="submit" />
                             </div>
                             { invalidToken ? <Message className="mt-10" severity="error" text="Codigo invalido" /> : null }
+                            { invalidAgentCode ? <Message className="mt-10" severity="error" text="Agente invalido" /> : null }
                         </form>
                     </Segment>
             }
