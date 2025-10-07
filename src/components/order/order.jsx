@@ -44,6 +44,7 @@ function Order (){
     const [iva, setIva] = useState(null);
     const [total, setTotal] = useState(null);
     const [cartVisible, setCartVisible] = useState(false);
+    const [orderDone, setOrderDone] = useState(false);
     const [sendEmailToCustomer, setSendEmailToCustomer] = useState(false);
     const [cartNote, setCartNote] = useState('');
     let nextOrderDetailId = null;
@@ -300,6 +301,15 @@ function Order (){
         }
     }
 
+    const resetOrder = () => {
+        setCart(null);
+        setCartVisible(false);
+        setCartNote('');
+        products.forEach((product) => {
+            product.added = false;
+        });
+    }
+
     const cartHeader = () => {
         return(
             <Segment className="customer">
@@ -431,7 +441,7 @@ function Order (){
             let payload = {};
             payload['merchantID'] = customer.merchantID;
             payload['orderDetailtID'] = nextOrderDetailId;
-            payload['discount'] = discount;
+            payload['discount'] = discount ? discount : 0;
             payload['iva'] = iva;
             payload['total'] = total;
             payload['note'] = cartNote;
@@ -445,12 +455,13 @@ function Order (){
                     if (response.apiData.data.length > 0) {
                         
                     }
+                    resetOrder();
                     setInsertOrderLoading(false);
+                    setOrderDone(true);
                 }
 
                 if (response.apiError) {
                     if (response.apiError.code === 'ECONNABORTED') {
-                        console.log('New request has been executed.');
                         insertOrderHead();
                     } else {
                         console.log('api error', response.apiError);
@@ -505,7 +516,7 @@ function Order (){
                                         <Segment className="order-recovery-container">
                                             <Button label="Retomar Pedido" icon="pi pi-sync" onClick={getAllFromLastOrder} loading={lastOrderGetAllLoading} disabled={insertOrderLoading}/>
                                         </Segment>
-                                        
+
                                         <Segment className="send-email-to-customer-container">
                                             <Checkbox inputId="sendEmailToCustomer" name="sendEmailToCustomer" onChange={e => setSendEmailToCustomer(e.checked)} checked={sendEmailToCustomer} />
                                             <label htmlFor="sendEmailToCustomer" className="ml-2">Enviar correo al cliente</label>
@@ -529,6 +540,16 @@ function Order (){
                                     </>
                                 }
 
+                            </Dialog>
+                            <Dialog visible={orderDone} className="orderDone" header={cartHeader} style={{ width: '700px' }} onHide={() => {if (!orderDone) return; setOrderDone(false); }}>
+                                <>
+                                    <div className="t-align-center">
+                                        <h2>El pedido ha sido agregado.</h2>
+                                    </div>
+                                    <Segment className="no-records-order-recovery-container">
+                                        <Button label="Volver" icon="pi pi-arrow-left" onClick={() => setOrderDone(false)}/>
+                                    </Segment>
+                                </>
                             </Dialog>
                         </Segment>
                         <Segment className="customer">
@@ -579,7 +600,7 @@ function Order (){
                                             <InputText className="mb-10" placeholder="Comentario" value={addProductMessage} onChange={(e) => setAddProductMessage(e.target.value)} />
                                         </Segment>
                                         <Segment className="t-align-center">
-                                            <Button label="Cancelar" className="mr-20" icon="pi pi-check" onClick={() => cancelAddProduct()} />
+                                            <Button label="Cancelar" className="mr-20" icon="pi pi-times" onClick={() => cancelAddProduct()} />
                                             <Button label="Agregar" icon="pi pi-check" type="submit" autoFocus />
                                         </Segment>
                                     </form>

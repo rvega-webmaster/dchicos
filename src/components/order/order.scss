@@ -1,4 +1,5 @@
 @import '../../resources/variable-style.scss';
+@import '../../resources/shared-style.scss';
 
 .order{
 
@@ -206,7 +207,8 @@
     }
 
     .order-recovery-container{
-        margin-top: 70px;
+        margin-top: 20px;
+        display: inline-block;
     }
 
     .no-records-order-recovery-container{
@@ -215,7 +217,8 @@
     }
 
     .send-email-to-customer-container{
-        margin-top: 20px;
+        margin-left: 20px;
+        display: inline;
 
         label{
             margin-left: 10px;
@@ -227,5 +230,16 @@
             display: block;
             margin: 20px 0 0 10px;
         }
+    }
+
+    .t-align-center{
+        text-align: center;
+    }
+}
+
+.orderDone{
+    .p-dialog-header{
+        background: $cadetblue;
+        color: $white
     }
 }
