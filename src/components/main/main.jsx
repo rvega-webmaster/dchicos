@@ -15,7 +15,7 @@ function Main (){
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Nav />}>
-                        <Route index element={<Home />} />
+                        <Route index element={<Order />} />
                         <Route path="/sobre-nosotros" element={<AboutUs />} />
                         <Route path="/catalogo" element={<Catalog />} />
                         <Route path="/pedidos" element={<Order />} />
