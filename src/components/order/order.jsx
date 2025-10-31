@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Segment } from 'semantic-ui-react';
+import { InputNumber } from "primereact/inputnumber";
 import { InputText } from 'primereact/inputtext';
 import { FloatLabel } from "primereact/floatlabel";
 import { Button } from 'primereact/button';
@@ -474,6 +475,26 @@ function Order (){
         }
     }
 
+    const onRowEditComplete = (e) => {
+        let _orderList = [...cart.orderList];
+        let _tempOrder = cart;
+        let { newData, index } = e;
+        _orderList[index] = newData;
+
+        _tempOrder['orderList'] = _orderList;
+
+        setCart(_tempOrder);
+        //setProducts(_orderList);
+    };
+
+    const priceEditor = (options) => {
+        return <InputText type="number" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} style={{ width: '80px' }}/>;
+    };
+
+    const textEditor = (options) => {
+        return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} style={{ width: '100px' }}/>;
+    };
+
     return (
         <Container className="order p-relative">
             {
@@ -481,15 +502,16 @@ function Order (){
                     <Segment className="t-align-center">
                         <Segment className="cart-container">
                             <Button label="Pedido" icon="pi pi-shopping-cart" className="cart-icon" onClick={() => setCartVisible(true)}/>
-                            <Dialog visible={cartVisible} header={cartHeader} style={{ width: '1000px' }} onHide={() => {if (!cartVisible) return; setCartVisible(false); }}>
+                            <Dialog visible={cartVisible} header={cartHeader} style={{ width: '1000px', zIndex: 1102 }} onHide={() => { setCartVisible(false); }}>
                                 
                                 { cart && cart.orderList ?
                                     <>
-                                        <DataTable value={cart.orderList}>
+                                        <DataTable value={cart.orderList} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} className="cart-table">
+                                            <Column rowEditor={true} headerStyle={{ width: '100px' }} bodyStyle={{ textAlign: 'center' }}></Column>
                                             <Column field="id" header="Codigo"></Column>
                                             <Column field="name" header="Descripcion"></Column>
-                                            <Column field="message" header="Comentario"></Column>
-                                            <Column field="amount" header="Cantidad"></Column>
+                                            <Column field="message" header="Comentario" editor={(options) => textEditor(options)}></Column>
+                                            <Column field="amount" header="Cantidad" editor={(options) => priceEditor(options)}></Column>
                                             <Column field="price" header="Precio"></Column>
                                             <Column field="singleProductSubTotal" header="SubTotal"></Column>
                                         </DataTable>
