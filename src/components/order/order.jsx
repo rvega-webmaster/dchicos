@@ -530,6 +530,31 @@ function Order (){
             } else {
                 setCart(null);
             }
+
+            // Call API to delete product from last order
+            deleteProductFromLastOrder(rowData.id);
+        }
+    };
+
+    const deleteProductFromLastOrder = (productID) => {
+        try {
+            const method = 'DELETE';
+            let payload = {};
+            payload['customer'] = customer.merchantID;
+            payload['product_id'] = productID;
+
+            RequestBuilderService('/ws-last-order-delete/', payload, method).then((response) => {
+                if (response.apiError) {
+                    if (response.apiError.code === 'ECONNABORTED') {
+                        console.log('New request has been executed.');
+                        deleteProductFromLastOrder(productID);
+                    } else {
+                        console.log('api error', response.apiError);
+                    }
+                }
+            });
+        } catch (e) {
+            console.log('Error Deleting Product from Last Order', e);
         }
     };
 
