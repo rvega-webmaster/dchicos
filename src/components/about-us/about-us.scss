@@ -2,45 +2,165 @@
 
 .about-us{
 
+    // Mobile-first approach
+    @media (max-width: 768px) {
+        padding: 10px;
+        
+        .ui.container {
+            margin-left: 1em !important;
+            margin-right: 1em !important;
+            width: auto !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        padding: 5px;
+        
+        .ui.container {
+            margin-left: 0.5em !important;
+            margin-right: 0.5em !important;
+        }
+    }
+
     .main-text{
         width: 700px;
         vertical-align: top;
         margin-right: 50px;
         color: $darkGrey;
+
+        @media (max-width: 768px) {
+            width: 100%;
+            margin-right: 0;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            margin-bottom: 15px;
+            padding: 10px;
+        }
+        
+        h2 {
+            @media (max-width: 768px) {
+                font-size: 20px;
+                text-align: center;
+                margin: 20px 0 15px 0;
+            }
+
+            @media (max-width: 480px) {
+                font-size: 18px;
+                margin: 15px 0 10px 0;
+            }
+        }
         
         .left-image{
             float: left;
             box-shadow: 10px 10px 5px #888888;
             height: 150px;
             margin: 20px;
+
+            @media (max-width: 768px) {
+                float: none;
+                display: block;
+                margin: 10px auto;
+                height: 120px;
+                max-width: 200px;
+            }
+
+            @media (max-width: 480px) {
+                height: 100px;
+                max-width: 150px;
+                margin: 5px auto;
+            }
         }
     
         .welcome-image{
             margin-top: 10px;
+
+            @media (max-width: 768px) {
+                display: block;
+                margin: 10px auto;
+                max-width: 100%;
+                height: auto;
+            }
+
+            @media (max-width: 480px) {
+                max-width: 90%;
+                margin: 5px auto;
+            }
         }
     
         p{
             font-size: 17px;
             margin-left: 20px;
 
-            .first-paragraph{
+            @media (max-width: 768px) {
+                font-size: 15px;
+                margin: 15px 10px;
+                text-align: justify;
+                line-height: 1.6;
+            }
+
+            @media (max-width: 480px) {
+                font-size: 14px;
+                margin: 12px 8px;
+                line-height: 1.5;
+            }
+
+            &.first-paragraph{
                 margin-top: 0px;
+
+                @media (max-width: 768px) {
+                    margin-top: 15px;
+                }
             }
         }
 
         .categories{
+            @media (max-width: 768px) {
+                margin: 20px 10px;
+            }
+
+            @media (max-width: 480px) {
+                margin: 15px 8px;
+            }
+
             li{
                 background: url(../../resources/images/vineta.png) no-repeat;
                 list-style-type: none;
                 padding-left: 25px;
                 margin-bottom: 5px;
                 height: 20px;
+                font-size: 17px;
+
+                @media (max-width: 768px) {
+                    font-size: 15px;
+                    padding-left: 20px;
+                    margin-bottom: 8px;
+                    line-height: 1.4;
+                }
+
+                @media (max-width: 480px) {
+                    font-size: 14px;
+                    padding-left: 18px;
+                    margin-bottom: 6px;
+                    height: auto;
+                    min-height: 18px;
+                }
             }
         }
     }
 
     .banner{
         margin: 50px 0 25px 0;
+
+        @media (max-width: 768px) {
+            margin: 30px 0 15px 0;
+        }
+
+        @media (max-width: 480px) {
+            margin: 20px 0 10px 0;
+        }
 
         .p-carousel-items-content{
             text-align: center;
@@ -49,16 +169,48 @@
         .p-carousel-prev, .p-carousel-next{
             display: none;
         }
+
+        // Make carousel images responsive
+        img {
+            @media (max-width: 768px) {
+                max-width: 100%;
+                height: auto;
+            }
+        }
     }
 
     .news-container{
         width: 170px;
         margin-top: 20px;
 
+        @media (max-width: 768px) {
+            width: 100%;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (max-width: 480px) {
+            margin-top: 20px;
+            gap: 15px;
+        }
+
         .news-box{
             width: 160px;
             text-align: center;
             margin-bottom: 20px;
+
+            @media (max-width: 768px) {
+                width: 100%;
+                margin-bottom: 0;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            @media (max-width: 480px) {
+                max-width: 100%;
+            }
     
             h2{
                 font-size: 18px;
@@ -68,6 +220,16 @@
                 border-radius: 15px 15px 0 0;
                 color: $white;
                 text-shadow: $grey 1px 1px;
+
+                @media (max-width: 768px) {
+                    font-size: 16px;
+                    padding: 12px 5px;
+                }
+
+                @media (max-width: 480px) {
+                    font-size: 15px;
+                    padding: 10px 5px;
+                }
             }
     
             p{
@@ -76,6 +238,17 @@
                 padding: 10px 5px;
                 font-size: 14px;
                 color: $darkGrey;
+
+                @media (max-width: 768px) {
+                    font-size: 13px;
+                    padding: 12px 8px;
+                    line-height: 1.4;
+                }
+
+                @media (max-width: 480px) {
+                    font-size: 12px;
+                    padding: 10px 6px;
+                }
             }
     
             ul{
@@ -85,6 +258,16 @@
                 font-size: 14px;
                 text-align: left;
                 color: $darkGrey;
+
+                @media (max-width: 768px) {
+                    font-size: 13px;
+                    padding: 12px 8px;
+                }
+
+                @media (max-width: 480px) {
+                    font-size: 12px;
+                    padding: 10px 6px;
+                }
     
                 li{
                     background: url(../../resources/images/vineta.png) no-repeat;
@@ -92,6 +275,64 @@
                     padding-left: 25px;
                     margin-bottom: 5px;
                     height: 20px;
+
+                    @media (max-width: 768px) {
+                        padding-left: 20px;
+                        margin-bottom: 8px;
+                        line-height: 1.3;
+                    }
+
+                    @media (max-width: 480px) {
+                        padding-left: 18px;
+                        margin-bottom: 6px;
+                        height: auto;
+                        min-height: 18px;
+                    }
+                }
+            }
+        }
+    }
+
+    // Content wrapper for better mobile layout
+    .content-wrapper {
+        @media (max-width: 768px) {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (max-width: 480px) {
+            gap: 15px;
+        }
+    }
+
+    // Additional mobile styles for layout
+    @media (max-width: 768px) {
+        .main-text, .news-container {
+            display: block;
+            width: 100%;
+            margin-left: 0;
+        }
+    }
+
+    // Carousel responsive improvements
+    .card {
+        @media (max-width: 768px) {
+            margin: 10px 0;
+        }
+
+        @media (max-width: 480px) {
+            margin: 5px 0;
+        }
+
+        .custom-carousel {
+            .p-carousel-item {
+                img {
+                    @media (max-width: 768px) {
+                        max-width: 100%;
+                        height: auto;
+                        width: auto;
+                    }
                 }
             }
         }

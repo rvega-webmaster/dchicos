@@ -19,7 +19,7 @@ function AboutUs (){
         },
         {
             breakpoint: '1199px',
-            numVisible: 3,
+            numVisible: 2,
             numScroll: 1
         },
         {
@@ -50,7 +50,16 @@ function AboutUs (){
         return (
             <div className="border-1 surface-border border-round m-2 text-center py-5 px-3">
                 <div className="mb-3">
-                    <img src={image.path} alt={image.name} className="w-6 shadow-2" />
+                    <img 
+                        src={image.path} 
+                        alt={image.name} 
+                        className="w-6 shadow-2"
+                        style={{ 
+                            maxWidth: '100%', 
+                            height: 'auto',
+                            objectFit: 'contain'
+                        }}
+                    />
                 </div>
             </div>
         );
@@ -58,40 +67,52 @@ function AboutUs (){
 
     return (
         <Container className='about-us'>
-            <Segment className='main-text d-inline-block'>
-                <h2>Misión</h2>
-                <p>Brindar los mejores productos para consentir a tu Bebé en los primeros momentos de su vida desde la comodidad de tu hogar.</p>
-                
-                <h2>Visión</h2>
-                <p>Ser líderes en la distribución de productos con la más alta calidad y tecnología para tu Bebé. Nuestro compromiso es la satisfacion de nuestros clientes.</p>
-                
-                <h2>Valores</h2>
-                <ul className='categories'>
-                    <li>Satisfacion total.</li>
-                    <li>Puntualidad en la entrega de tus productos.</li>
-                    <li>Confianza.</li>
-                </ul>
-            </Segment>
-            <Segment className='news-container d-inline-block'>
-                <div className='news-box'>
-                    <h2>Ultimas Noticias</h2>
-                    <p>Conozca el Coche y Silla cargadora, visita nuestra galeria y conoce mas.</p>
-                </div>
-                <div className='news-box'>
-                    <h2>Categorias</h2>
-                    <ul>
-                        <li>Coches para Bebe</li>
-                        <li>Cunas</li>
-                        <li>Encierros</li>
-                        <li>Cadenitas</li>
-                        <li>Moviles Musicales</li>
-                        <li>Silla para Autos</li>
+            <div className="content-wrapper">
+                <Segment className='main-text d-inline-block'>
+                    <h2>Misión</h2>
+                    <p>Brindar los mejores productos para consentir a tu Bebé en los primeros momentos de su vida desde la comodidad de tu hogar.</p>
+                    
+                    <h2>Visión</h2>
+                    <p>Ser líderes en la distribución de productos con la más alta calidad y tecnología para tu Bebé. Nuestro compromiso es la satisfacion de nuestros clientes.</p>
+                    
+                    <h2>Valores</h2>
+                    <ul className='categories'>
+                        <li>Satisfacion total.</li>
+                        <li>Puntualidad en la entrega de tus productos.</li>
+                        <li>Confianza.</li>
                     </ul>
-                </div>
-            </Segment>
+                </Segment>
+                <Segment className='news-container d-inline-block'>
+                    <div className='news-box'>
+                        <h2>Ultimas Noticias</h2>
+                        <p>Conozca el Coche y Silla cargadora, visita nuestra galeria y conoce mas.</p>
+                    </div>
+                    <div className='news-box'>
+                        <h2>Categorias</h2>
+                        <ul>
+                            <li>Coches para Bebe</li>
+                            <li>Cunas</li>
+                            <li>Encierros</li>
+                            <li>Cadenitas</li>
+                            <li>Moviles Musicales</li>
+                            <li>Silla para Autos</li>
+                        </ul>
+                    </div>
+                </Segment>
+            </div>
             <div className="card banner">
-                <Carousel value={bannerList} numVisible={1} numScroll={1} responsiveOptions={responsiveOptionsBanner} className="custom-carousel" circular
-                autoplayInterval={1500} itemTemplate={imageTemplate} />
+                <Carousel 
+                    value={bannerList} 
+                    numVisible={3} 
+                    numScroll={1} 
+                    responsiveOptions={responsiveOptionsBanner} 
+                    className="custom-carousel" 
+                    circular
+                    autoplayInterval={1500} 
+                    itemTemplate={imageTemplate}
+                    showIndicators={false}
+                    showNavigators={false}
+                />
             </div>
         </Container>
     );

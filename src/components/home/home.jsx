@@ -57,7 +57,7 @@ function Home (){
         },
         {
             breakpoint: '1199px',
-            numVisible: 3,
+            numVisible: 2,
             numScroll: 1
         },
         {
@@ -95,7 +95,16 @@ function Home (){
         return (
             <div className="border-1 surface-border border-round m-2 text-center py-5 px-3">
                 <div className="mb-3">
-                    <img src={image.path} alt={image.name} className="w-6 shadow-2" />
+                    <img 
+                        src={image.path} 
+                        alt={image.name} 
+                        className="w-6 shadow-2"
+                        style={{ 
+                            maxWidth: '100%', 
+                            height: 'auto',
+                            objectFit: 'contain'
+                        }}
+                    />
                 </div>
             </div>
         );
@@ -104,10 +113,21 @@ function Home (){
     return (
         <Container className='home'>
             <div className="card">
-                <Carousel value={imageList} numVisible={1} numScroll={1} responsiveOptions={responsiveOptions} className="custom-carousel" circular
-                autoplayInterval={3000} itemTemplate={imageTemplate} />
+                <Carousel 
+                    value={imageList} 
+                    numVisible={1} 
+                    numScroll={1} 
+                    responsiveOptions={responsiveOptions} 
+                    className="custom-carousel" 
+                    circular
+                    autoplayInterval={3000} 
+                    itemTemplate={imageTemplate} 
+                    showIndicators={true}
+                    showNavigators={false}
+                />
             </div>
-            <Segment className='main-text d-inline-block'>
+            <div className="content-wrapper">
+                <Segment className='main-text d-inline-block'>
                 <img src={bebe} alt='bebe image' className='left-image' />
                 <img src={bienvenido} alt='bienvenido image'  className='welcome-image' />
                 <p className='first-paragraph'>D’Chicos consciente de la importancia de la seguridad y comodidad para los bebés, ha desarrollado una amplia línea de productos especializados que cumplen con todas las exigencias del mercado tanto en calidad como en precio.</p>
@@ -131,9 +151,20 @@ function Home (){
                     </ul>
                 </div>
             </Segment>
+            </div>
             <div className="card banner">
-                <Carousel value={bannerList} numVisible={1} numScroll={1} responsiveOptions={responsiveOptionsBanner} className="custom-carousel" circular
-                autoplayInterval={1500} itemTemplate={imageTemplate} />
+                <Carousel 
+                    value={bannerList} 
+                    numVisible={3} 
+                    numScroll={1} 
+                    responsiveOptions={responsiveOptionsBanner} 
+                    className="custom-carousel" 
+                    circular
+                    autoplayInterval={1500} 
+                    itemTemplate={imageTemplate}
+                    showIndicators={false}
+                    showNavigators={false}
+                />
             </div>
         </Container>
     );
