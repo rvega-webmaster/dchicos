@@ -11,14 +11,18 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Checkbox } from "primereact/checkbox";
 import { InputTextarea } from "primereact/inputtextarea";
+import { Tooltip } from 'primereact/tooltip';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { RequestBuilderService } from '../../services/request-builder-services';
 import BouncingDotsLoader from "../bouncing-dots-loader/bouncing-dots-loader";
 import 'primereact/resources/themes/lara-light-blue/theme.css';
 import './order.scss';
 
 function Order (){
-    const [token, setToken] = useState('');
-    const [agentCode, setAgentCode] = useState('');
+    const [token, setToken] = useState('1000099');
+    const [phoneNumber, setPhoneNumber] = useState('61066795');
+    const [agentCode, setAgentCode] = useState('201rv');
+    const [agentCheck, setAgentCheck] = useState(true);
     const [loading, setLoading] = useState(false);
     const [lastOrderGetAllLoading, setLastOrderGetAllLoading] = useState(false);
     const [insertOrderLoading, setInsertOrderLoading] = useState(false);
@@ -33,8 +37,6 @@ function Order (){
     const [customer, setCustomer] = useState(null);
     const [agent, setAgent] = useState(null);
     const [isAgent, setIsAgent] = useState(false);
-    const [agentCheck, setAgentCheck] = useState(false);
-    const [phoneNumber, setPhoneNumber] = useState('');
     const [addProductVisible, setAddProductVisible] = useState(false);
     const [addProductAmount, setAddProductAmount] = useState('');
     const [addProductMessage, setAddProductMessage] = useState('');
@@ -48,6 +50,7 @@ function Order (){
     const [orderDone, setOrderDone] = useState(false);
     const [sendEmailToCustomer, setSendEmailToCustomer] = useState(false);
     const [cartNote, setCartNote] = useState('');
+    const [editingRowId, setEditingRowId] = useState(null);
     let nextOrderDetailId = null;
 
     useEffect (() => {
@@ -259,7 +262,7 @@ function Order (){
                     name: order.name, 
                     amount: order.amount, 
                     message: order.message, 
-                    price: numberWithCommas(parseInt(order.price)),
+                    price: numberWithCommas(priceFormat),
                     singleProductSubTotal: numberWithCommas(parseInt(singleProductSubTotal))
                     }
                 );
@@ -477,14 +480,73 @@ function Order (){
 
     const onRowEditComplete = (e) => {
         let _orderList = [...cart.orderList];
-        let _tempOrder = cart;
         let { newData, index } = e;
         _orderList[index] = newData;
 
-        _tempOrder['orderList'] = _orderList;
+        // Update the cart with the new values and recalculate totals
+        updateCart(_orderList);
+        setEditingRowId(null); // Clear editing state
+    };
 
-        setCart(_tempOrder);
-        //setProducts(_orderList);
+    const onRowEditInit = (e) => {
+        setEditingRowId(e.data.id); // Set the row being edited
+    };
+
+    const onRowEditCancel = (e) => {
+        setEditingRowId(null); // Clear editing state
+    };
+
+    const confirmDeleteProduct = (rowData) => {
+        confirmDialog({
+            message: `¿Está seguro que desea eliminar ${rowData.name} del pedido?`,
+            header: 'Confirmar eliminación',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => deleteProduct(rowData),
+            reject: () => {},
+            acceptLabel: 'Sí, eliminar',
+            rejectLabel: 'Cancelar',
+            acceptClassName: 'p-button-danger',
+            rejectClassName: 'p-button-secondary'
+        });
+    };
+
+    const deleteProduct = (rowData) => {
+        let _orderList = [...cart.orderList];
+        const index = _orderList.findIndex(item => item.id === rowData.id);
+        
+        if (index !== -1) {
+            _orderList.splice(index, 1);
+            
+            // Mark product as not added in the products list
+            products.forEach((product) => {
+                if (product.productID === rowData.id) {
+                    product.added = false;
+                }
+            });
+            
+            // Update cart with remaining items or set to null if empty
+            if (_orderList.length > 0) {
+                updateCart(_orderList);
+            } else {
+                setCart(null);
+            }
+        }
+    };
+
+    const actionBodyTemplate = (rowData) => {
+        // Hide delete button if this row is being edited
+        if (editingRowId === rowData.id) {
+            return null;
+        }
+        
+        return (
+            <Button 
+                icon="pi pi-trash" 
+                className="p-button-rounded p-button-danger p-button-text" 
+                onClick={() => confirmDeleteProduct(rowData)}
+                tooltip="Eliminar producto"
+            />
+        );
     };
 
     const priceEditor = (options) => {
@@ -497,6 +559,7 @@ function Order (){
 
     return (
         <Container className="order p-relative">
+            <ConfirmDialog />
             {
                 customer ? 
                     <Segment className="t-align-center">
@@ -506,8 +569,29 @@ function Order (){
                                 
                                 { cart && cart.orderList ?
                                     <>
-                                        <DataTable value={cart.orderList} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} className="cart-table">
-                                            <Column rowEditor={true} headerStyle={{ width: '100px' }} bodyStyle={{ textAlign: 'center' }}></Column>
+                                        <Tooltip target=".p-row-editor-init" content="Editar producto" position="top" />
+                                        <Tooltip target=".p-row-editor-save" content="Guardar cambios" position="top" />
+                                        <Tooltip target=".p-row-editor-cancel" content="Cancelar edición" position="top" />
+                                        
+                                        <DataTable 
+                                            value={cart.orderList} 
+                                            editMode="row" 
+                                            dataKey="id" 
+                                            onRowEditComplete={onRowEditComplete}
+                                            onRowEditInit={onRowEditInit}
+                                            onRowEditCancel={onRowEditCancel}
+                                            className="cart-table"
+                                        >
+                                            <Column 
+                                                rowEditor={true} 
+                                                headerStyle={{ width: editingRowId ? '100px' : '50px' }} 
+                                                bodyStyle={{ textAlign: 'center' }}
+                                            />
+                                            <Column 
+                                                body={actionBodyTemplate} 
+                                                headerStyle={{ width: editingRowId ? '0px' : '50px' }} 
+                                                bodyStyle={{ textAlign: 'center' }}
+                                            />
                                             <Column field="id" header="Codigo"></Column>
                                             <Column field="name" header="Descripcion"></Column>
                                             <Column field="message" header="Comentario" editor={(options) => textEditor(options)}></Column>
