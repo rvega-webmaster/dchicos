@@ -575,11 +575,11 @@ function Order (){
     };
 
     const priceEditor = (options) => {
-        return <InputText type="number" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} style={{ width: '80px' }}/>;
+        return <InputText type="number" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} style={{ width: '60px', fontSize: '12px' }}/>;
     };
 
     const textEditor = (options) => {
-        return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} style={{ width: '100px' }}/>;
+        return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} style={{ width: '80px', fontSize: '12px' }}/>;
     };
 
     return (
@@ -590,7 +590,17 @@ function Order (){
                     <Segment className="t-align-center">
                         <Segment className="cart-container">
                             <Button label="Pedido" icon="pi pi-shopping-cart" className="cart-icon" onClick={() => setCartVisible(true)}/>
-                            <Dialog visible={cartVisible} header={cartHeader} style={{ width: '1000px', zIndex: 1102 }} onHide={() => { setCartVisible(false); }}>
+                            <Dialog 
+                                visible={cartVisible} 
+                                header={cartHeader} 
+                                style={{ width: '95vw', maxWidth: '1000px' }} 
+                                contentStyle={{ padding: '10px' }}
+                                breakpoints={{ '960px': '75vw', '641px': '100vw' }}
+                                zIndex={1102} 
+                                onHide={() => { setCartVisible(false); }}
+                                dismissableMask={true}
+                                draggable={false}
+                            >
                                 
                                 { cart && cart.orderList ?
                                     <>
@@ -606,6 +616,9 @@ function Order (){
                                             onRowEditInit={onRowEditInit}
                                             onRowEditCancel={onRowEditCancel}
                                             className="cart-table"
+                                            responsiveLayout="scroll"
+                                            scrollable={true}
+                                            scrollHeight="60vh"
                                         >
                                             <Column 
                                                 rowEditor={true} 
@@ -617,12 +630,12 @@ function Order (){
                                                 headerStyle={{ width: editingRowId ? '0px' : '50px' }} 
                                                 bodyStyle={{ textAlign: 'center' }}
                                             />
-                                            <Column field="id" header="Codigo"></Column>
-                                            <Column field="name" header="Descripcion"></Column>
-                                            <Column field="message" header="Comentario" editor={(options) => textEditor(options)}></Column>
-                                            <Column field="amount" header="Cantidad" editor={(options) => priceEditor(options)}></Column>
-                                            <Column field="price" header="Precio"></Column>
-                                            <Column field="singleProductSubTotal" header="SubTotal"></Column>
+                                            <Column field="id" header="Cod" headerStyle={{ minWidth: '60px' }}></Column>
+                                            <Column field="name" header="Producto" headerStyle={{ minWidth: '120px' }}></Column>
+                                            <Column field="message" header="Nota" editor={(options) => textEditor(options)} headerStyle={{ minWidth: '100px' }}></Column>
+                                            <Column field="amount" header="Cant" editor={(options) => priceEditor(options)} headerStyle={{ minWidth: '70px' }}></Column>
+                                            <Column field="price" header="Precio" headerStyle={{ minWidth: '80px' }}></Column>
+                                            <Column field="singleProductSubTotal" header="Total" headerStyle={{ minWidth: '80px' }}></Column>
                                         </DataTable>
 
                                         <Segment className="total-container">
@@ -672,7 +685,15 @@ function Order (){
                                 }
 
                             </Dialog>
-                            <Dialog visible={orderDone} className="orderDone" header={cartHeader} style={{ width: '700px' }} onHide={() => {if (!orderDone) return; setOrderDone(false); }}>
+                            <Dialog 
+                                visible={orderDone} 
+                                className="orderDone" 
+                                header={cartHeader} 
+                                style={{ width: '90vw', maxWidth: '700px' }} 
+                                breakpoints={{ '960px': '75vw', '641px': '95vw' }}
+                                onHide={() => {if (!orderDone) return; setOrderDone(false); }}
+                                dismissableMask={true}
+                            >
                                 <>
                                     <div className="t-align-center">
                                         <h2>El pedido ha sido agregado.</h2>
@@ -714,7 +735,15 @@ function Order (){
                                     );
                                 })}
 
-                                <Dialog visible={addProductVisible} modal className="add-product" style={{ width: '22rem' }} onHide={() => {if (!addProductVisible) return; setAddProductVisible(false); }}>
+                                <Dialog 
+                                    visible={addProductVisible} 
+                                    modal 
+                                    className="add-product" 
+                                    style={{ width: '90vw', maxWidth: '22rem' }} 
+                                    breakpoints={{ '960px': '75vw', '641px': '95vw' }}
+                                    onHide={() => {if (!addProductVisible) return; setAddProductVisible(false); }}
+                                    dismissableMask={true}
+                                >
                                     <Segment className="product-container t-align-center">
                                         { productSelected ? <img className="horizontal-space" src={`https://www.dchicos.com/${productSelected.image}`} /> : null }
                                         { productSelected ? <p className="horizontal-space"><b>{productSelected.productID}</b></p> : null }
