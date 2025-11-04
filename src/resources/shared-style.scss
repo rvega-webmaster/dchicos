@@ -51,7 +51,7 @@ html{
 
                 @media (max-width: 768px) {
                     float: none;
-                    display: block;
+                    display: none;
                     margin: 0 auto;
                 }
             }
@@ -61,7 +61,7 @@ html{
 
                 @media (max-width: 768px) {
                     float: none;
-                    display: block;
+                    display: none;
                     margin: 0 auto;
                 }
             }
@@ -72,6 +72,18 @@ html{
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
+
+                @media (max-width: 768px) {
+                    position: relative;
+                    top: 30%;
+                    left: 0;
+                }
+
+                @media (max-width: 480px) {
+                    position: relative;
+                    top: 15%;
+                    left: 0;
+                }
             }
 
             .d-inline{

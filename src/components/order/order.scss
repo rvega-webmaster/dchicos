@@ -3,6 +3,10 @@
 
 .order{
 
+    .order-list-container{
+        position: relative;
+    }
+
     .cart-container{
         position: absolute;
         top: 80px;
@@ -12,8 +16,15 @@
             position: relative;
             top: 0;
             right: 0;
-            text-align: center;
-            margin-bottom: 20px;
+            float: right;
+        }
+    }
+
+    .categories-list{
+         @media (max-width: 480px) {
+            float: left;
+            margin-top: 0 !important;
+            padding: 2px;
         }
     }
 
@@ -31,8 +42,9 @@
             margin: 0 auto;
 
             @media (max-width: 768px) {
-                width: 100%;
+                width: 165px;
                 max-width: 300px;
+                margin-top: 30px !important;
             }
         }
     }
@@ -135,6 +147,11 @@
         -moz-border-radius: 8px;
         border-radius: 8px;
 
+        @media (max-width: 480px) {
+            top: 125px;
+            width: 94%;
+        }
+
         p{
             padding: 20px;
             color: $blue;
@@ -200,7 +217,6 @@
 
         @media (max-width: 480px) {
             margin-right: 10px;
-            margin-bottom: 10px;
         }
     }
 
@@ -429,6 +445,21 @@
     }
 }
 
+.p-confirm-dialog {
+
+    .p-dialog-content{
+        @media (max-width: 480px) {
+            padding: 2rem 0.5rem 2rem 0.5rem !important;
+        }
+    }
+
+    .p-dialog-footer{
+        @media (max-width: 480px) {
+            padding: 1.5rem !important;
+        }
+    }
+}
+
 // Global mobile responsiveness
 @media (max-width: 768px) {
     .ui.container {
@@ -438,7 +469,7 @@
     }
     
     .ui.segment {
-        padding: 0.5em !important;
+        padding: 0.5em !important;        
     }
     
     .p-button {
@@ -447,7 +478,7 @@
     }
     
     .p-dropdown {
-        width: 100% !important;
+        margin: 0px;
     }
     
     .p-inputtext {
@@ -464,7 +495,7 @@
     
     .p-button {
         padding: 0.4rem 0.8rem !important;
-        font-size: 0.75rem !important;
+        font-size: 0.85rem !important;
     }
     
     .p-inputtext {

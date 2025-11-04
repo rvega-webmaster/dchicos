@@ -587,7 +587,11 @@ function Order (){
             <ConfirmDialog />
             {
                 customer ? 
-                    <Segment className="t-align-center">
+                    <Segment className="t-align-center order-list-container">
+                        <Segment className="customer">
+                            <p><span><b>{customer.merchantID} - {customer.merchantName}</b></span></p>
+                            <p className="address">{customer.address}</p>
+                        </Segment>
                         <Segment className="cart-container">
                             <Button label="Pedido" icon="pi pi-shopping-cart" className="cart-icon" onClick={() => setCartVisible(true)}/>
                             <Dialog 
@@ -595,8 +599,7 @@ function Order (){
                                 header={cartHeader} 
                                 style={{ width: '95vw', maxWidth: '1000px' }} 
                                 contentStyle={{ padding: '10px' }}
-                                breakpoints={{ '960px': '75vw', '641px': '100vw' }}
-                                zIndex={1102} 
+                                breakpoints={{ '960px': '75vw', '641px': '100vw' }} 
                                 onHide={() => { setCartVisible(false); }}
                                 dismissableMask={true}
                                 draggable={false}
@@ -630,12 +633,12 @@ function Order (){
                                                 headerStyle={{ width: editingRowId ? '0px' : '50px' }} 
                                                 bodyStyle={{ textAlign: 'center' }}
                                             />
-                                            <Column field="id" header="Cod" headerStyle={{ minWidth: '60px' }}></Column>
+                                            <Column field="id" header="Codigo" headerStyle={{ minWidth: '60px' }}></Column>
                                             <Column field="name" header="Producto" headerStyle={{ minWidth: '120px' }}></Column>
                                             <Column field="message" header="Nota" editor={(options) => textEditor(options)} headerStyle={{ minWidth: '100px' }}></Column>
-                                            <Column field="amount" header="Cant" editor={(options) => priceEditor(options)} headerStyle={{ minWidth: '70px' }}></Column>
-                                            <Column field="price" header="Precio" headerStyle={{ minWidth: '80px' }}></Column>
-                                            <Column field="singleProductSubTotal" header="Total" headerStyle={{ minWidth: '80px' }}></Column>
+                                            <Column field="amount" header="Cantidad" editor={(options) => priceEditor(options)} headerStyle={{ minWidth: '70px' }} bodyStyle={{ textAlign: 'center' }}></Column>
+                                            <Column field="price" header="Precio" headerStyle={{ minWidth: '80px' }} bodyStyle={{ textAlign: 'center' }}></Column>
+                                            <Column field="singleProductSubTotal" header="Total" headerStyle={{ minWidth: '80px' }} bodyStyle={{ textAlign: 'center' }}></Column>
                                         </DataTable>
 
                                         <Segment className="total-container">
@@ -657,18 +660,14 @@ function Order (){
                                             </div>
                                         </Segment>
 
-                                        <Segment className="order-recovery-container">
-                                            <Button label="Retomar Pedido" icon="pi pi-sync" onClick={getAllFromLastOrder} loading={lastOrderGetAllLoading} disabled={insertOrderLoading}/>
+                                        <Segment className="cart-note-container">
+                                            <label htmlFor="cart-note">Nota</label>
+                                            <InputTextarea id="cart-note" value={cartNote} onChange={(e) => setCartNote(e.target.value)} rows={3} cols={50} />
                                         </Segment>
 
                                         <Segment className="send-email-to-customer-container">
                                             <Checkbox inputId="sendEmailToCustomer" name="sendEmailToCustomer" onChange={e => setSendEmailToCustomer(e.checked)} checked={sendEmailToCustomer} />
                                             <label htmlFor="sendEmailToCustomer" className="ml-2">Enviar correo al cliente</label>
-                                        </Segment>
-
-                                        <Segment className="cart-note-container">
-                                            <label htmlFor="cart-note">Nota</label>
-                                            <InputTextarea id="cart-note" value={cartNote} onChange={(e) => setCartNote(e.target.value)} rows={3} cols={50} />
                                         </Segment>
 
                                         <Segment className="send-order-container">
@@ -704,13 +703,9 @@ function Order (){
                                 </>
                             </Dialog>
                         </Segment>
-                        <Segment className="customer">
-                            <p><span><b>{customer.merchantID} - {customer.merchantName}</b></span></p>
-                            <p className="address">{customer.address}</p>
-                        </Segment>
                         <Segment>
                             <Dropdown value={categorySelected} onChange={(e) => changeCategory(e.value)} options={categoryOptions} optionLabel="description" placeholder="Categorias" loading={apiLoader}
-                                filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className={`w-full md:w-14rem mt-80 ${apiLoader ? 'mb-50': products.length > 0 ? 'mb-50' : 'mb-200'}`} />
+                                filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className={`categories-list w-full md:w-14rem mt-80 ${apiLoader ? 'mb-50': products.length > 0 ? 'mb-50' : 'mb-200'}`} />
                         </Segment>
                         { apiLoader ? <div className="mb-50"><BouncingDotsLoader /> </div> 
                         : 

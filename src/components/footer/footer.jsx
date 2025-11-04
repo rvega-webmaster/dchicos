@@ -6,7 +6,7 @@ function Footer (){
 
     return (
         <footer>
-            <span className='vertical-horizontal-center'>&copy; {year} www.dchicos.com v.4.0 Todos los derechos reservados</span>
+            <span className='vertical-horizontal-center'>&copy; {year} www.dchicos.com v.4.0 Todos los derechos reservados.</span>
         </footer>
     );
 }
